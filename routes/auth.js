@@ -1,5 +1,7 @@
 const express = require('express')
 const router = express.Router()
+const mongoose = require('mongoose')
+const User = mongoose.model("User")
 
 
 router.get('/',(req,res)=>{
@@ -13,6 +15,28 @@ router.post('/signup',(req,res)=>{
     }
     res.json({message:"successfully posted"})
     //console.log(req.body)
+    User.findOne({email:email})
+    .then((savedUser)=>{
+        if(savedUser){
+            return res.status(422).json({error:"user already exist with that emaol"})
+        }
+        const user = new User({
+            email,
+            password,
+            name
+        })
+
+        user.save()
+        .then(user=>{
+            res.json({message :"saved successfully"})
+        })
+        .catch(err=>{
+            console.log(err)
+        })
+    })
+    .catch(err=>{
+        console.log(err)
+    }) // ending for route
 })
 
 module.exports = router
